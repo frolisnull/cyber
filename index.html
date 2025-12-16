@@ -340,9 +340,11 @@
       box-shadow: 0 15px 40px rgba(106, 90, 249, 0.2);
     }
 
+    /* ИСПРАВЛЕНО: Убрана фиксированная высота для полноразмерных изображений */
     .game-image {
       width: 100%;
-      height: 200px;
+      min-height: 250px;
+      max-height: 350px;
       background: linear-gradient(135deg, #2c2c54, #40407a);
       display: flex;
       align-items: center;
@@ -356,7 +358,7 @@
     .game-image img {
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      object-fit: contain; /* Изменено с cover на contain для полноразмерных изображений */
       transition: transform 0.5s ease;
     }
 
@@ -540,7 +542,7 @@
 
     .catalog-game-image {
       width: 100%;
-      height: 150px;
+      height: 180px; /* Увеличена высота */
       background: linear-gradient(135deg, #2c2c54, #40407a);
       border-bottom: 1px solid var(--glass-2);
       overflow: hidden;
@@ -549,7 +551,8 @@
     .catalog-game-image img {
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      object-fit: contain; /* Изменено на contain */
+      background: linear-gradient(135deg, #2c2c54, #40407a);
     }
 
     .catalog-game-content {
@@ -799,13 +802,13 @@
       }
     ];
 
-    // ====== GAMES CATALOG (30+ игр с изображениями) ======
+  // ====== GAMES CATALOG (30+ игр с изображениями) ======
     const gamesCatalog = [
       {
         id: 1,
         name: "The Witcher 3: Wild Hunt",
         imageUrl: "games/1.jpg",
-        link: "https://store.steampowered.com/app/292030/The_Witcher_3_Wild_Hunt/",
+        link: "https://store.steampowered.com/app/292030/The_Witcher_3_Wild_Hunt/", // Вы сможете добавить ссылку позже
         genre: ["RPG", "Приключения"],
         mood: ["Задумчивое", "Исследовательское"],
         playtime: "3-4 часа",
@@ -823,7 +826,7 @@
         id: 2,
         name: "Elden Ring",
         imageUrl: "games/2.jpg",
-        link: "https://store.steampowered.com/app/1245620/ELDEN_RING/",
+        link: "https://store.steampowered.com/app/1245620/ELDEN_RING/", // Вы сможете добавить ссылку позже
         genre: ["RPG", "Экшен"],
         mood: ["Энергичное", "Исследовательское"],
         playtime: "5+ часов",
@@ -841,7 +844,7 @@
         id: 3,
         name: "Stardew Valley",
         imageUrl: "games/3.webp",
-        link: "https://store.steampowered.com/app/413150/Stardew_Valley/",
+        link: "https://store.steampowered.com/app/413150/Stardew_Valley/", // Вы сможете добавить ссылку позже
         genre: ["Инди", "Симуляторы"],
         mood: ["Спокойное", "Задумчивое"],
         playtime: "1-2 часа",
@@ -859,7 +862,7 @@
         id: 4,
         name: "Call of Duty: Warzone",
         imageUrl: "games/4.webp",
-        link: "https://www.callofduty.com/warzone",
+        link: "https://www.callofduty.com/warzone", // Вы сможете добавить ссылку позже
         genre: ["Экшен"],
         mood: ["Энергичное", "Агрессивное"],
         playtime: "1-2 часа",
@@ -877,7 +880,7 @@
         id: 5,
         name: "Civilization VI",
         imageUrl: "games/5.jpg",
-        link: "https://store.steampowered.com/app/289070/Sid_Meiers_Civilization_VI/",
+        link: "https://store.steampowered.com/app/289070/Sid_Meiers_Civilization_VI/", // Вы сможете добавить ссылку позже
         genre: ["Стратегия"],
         mood: ["Задумчивое", "Исследовательское"],
         playtime: "3-4 часа",
@@ -895,7 +898,7 @@
         id: 6,
         name: "The Legend of Zelda: Breath of the Wild",
         imageUrl: "games/6.webp",
-        link: "https://www.nintendo.com/store/products/the-legend-of-zelda-breath-of-the-wild-switch/",
+        link: "https://www.nintendo.com/store/products/the-legend-of-zelda-breath-of-the-wild-switch/", // Вы сможете добавить ссылку позже
         genre: ["Приключения", "Экшен"],
         mood: ["Исследовательское", "Спокойное"],
         playtime: "3-4 часа",
@@ -913,7 +916,7 @@
         id: 7,
         name: "Among Us",
         imageUrl: "games/7.jpg",
-        link: "https://store.steampowered.com/app/945360/Among_Us/",
+        link: "https://store.steampowered.com/app/945360/Among_Us/", // Вы сможете добавить ссылку позже
         genre: ["Инди"],
         mood: ["Энергичное"],
         playtime: "Меньше 1 часа",
@@ -931,7 +934,7 @@
         id: 8,
         name: "Microsoft Flight Simulator",
         imageUrl: "games/8.png",
-        link: "https://store.steampowered.com/app/1250410/Microsoft_Flight_Simulator/",
+        link: "https://store.steampowered.com/app/1250410/Microsoft_Flight_Simulator/", // Вы сможете добавить ссылку позже
         genre: ["Симуляторы"],
         mood: ["Спокойное", "Исследовательское"],
         playtime: "1-2 часа",
@@ -949,7 +952,7 @@
         id: 9,
         name: "Hades",
         imageUrl: "games/9.webp",
-        link: "https://store.steampowered.com/app/1145360/Hades/",
+        link: "https://store.steampowered.com/app/1145360/Hades/", // Вы сможете добавить ссылку позже
         genre: ["Экшен", "Инди"],
         mood: ["Энергичное"],
         playtime: "1-2 часа",
@@ -967,7 +970,7 @@
         id: 10,
         name: "Red Dead Redemption 2",
         imageUrl: "games/10.webp",
-        link: "https://store.steampowered.com/app/1174180/Red_Dead_Redemption_2/",
+        link: "https://store.steampowered.com/app/1174180/Red_Dead_Redemption_2/", // Вы сможете добавить ссылку позже
         genre: ["Приключения", "Экшен"],
         mood: ["Задумчивое", "Исследовательское"],
         playtime: "5+ часов",
@@ -985,7 +988,7 @@
         id: 11,
         name: "Rocket League",
         imageUrl: "games/11.webp",
-        link: "https://store.epicgames.com/en-US/p/rocket-league",
+        link: "https://store.epicgames.com/en-US/p/rocket-league", // Вы сможете добавить ссылку позже
         genre: ["Гонки", "Экшен", "Спорт"],
         mood: ["Энергичное"],
         playtime: "1-2 часа",
@@ -1003,7 +1006,7 @@
         id: 12,
         name: "Celeste",
         imageUrl: "games/12.webp",
-        link: "https://store.steampowered.com/app/504230/Celeste/",
+        link: "https://store.steampowered.com/app/504230/Celeste/", // Вы сможете добавить ссылку позже
         genre: ["Инди", "Экшен"],
         mood: ["Энергичное", "Задумчивое"],
         playtime: "1-2 часа",
@@ -1021,7 +1024,7 @@
         id: 13,
         name: "Cyberpunk 2077",
         imageUrl: "games/13.webp",
-        link: "https://store.steampowered.com/app/1091500/Cyberpunk_2077/",
+        link: "https://store.steampowered.com/app/1091500/Cyberpunk_2077/", // Вы сможете добавить ссылку позже
         genre: ["RPG", "Экшен"],
         mood: ["Исследовательское", "Задумчивое"],
         playtime: "3-4 часа",
@@ -1039,7 +1042,7 @@
         id: 14,
         name: "Animal Crossing: New Horizons",
         imageUrl: "games/14.jpg",
-        link: "https://www.nintendo.com/store/products/animal-crossing-new-horizons-switch/",
+        link: "https://www.nintendo.com/store/products/animal-crossing-new-horizons-switch/", // Вы сможете добавить ссылку позже
         genre: ["Симуляторы"],
         mood: ["Спокойное"],
         playtime: "1-2 часа",
@@ -1057,7 +1060,7 @@
         id: 15,
         name: "Counter-Strike 2",
         imageUrl: "games/15.webp",
-        link: "https://store.steampowered.com/app/730/CounterStrike_2/",
+        link: "https://store.steampowered.com/app/730/CounterStrike_2/", // Вы сможете добавить ссылку позже
         genre: ["Экшен"],
         mood: ["Энергичное", "Агрессивное"],
         playtime: "1-2 часа",
@@ -1075,7 +1078,7 @@
         id: 16,
         name: "DOOM Eternal",
         imageUrl: "games/16.webp",
-        link: "https://store.steampowered.com/app/782330/DOOM_Eternal/",
+        link: "https://store.steampowered.com/app/782330/DOOM_Eternal/", // Вы сможете добавить ссылку позже
         genre: ["Экшен"],
         mood: ["Энергичное", "Агрессивное"],
         playtime: "1-2 часа",
@@ -1093,7 +1096,7 @@
         id: 17,
         name: "God of War (2018)",
         imageUrl: "games/17.webp",
-        link: "https://store.steampowered.com/app/1593500/God_of_War/",
+        link: "https://store.steampowered.com/app/1593500/God_of_War/", // Вы сможете добавить ссылку позже
         genre: ["Экшен", "Приключения"],
         mood: ["Энергичное", "Задумчивое"],
         playtime: "3-4 часа",
@@ -1111,7 +1114,7 @@
         id: 18,
         name: "Minecraft",
         imageUrl: "games/18.png",
-        link: "https://www.minecraft.net/",
+        link: "https://www.minecraft.net/", // Вы сможете добавить ссылку позже
         genre: ["Приключения", "Симуляторы"],
         mood: ["Спокойное", "Исследовательское"],
         playtime: "Целый день",
@@ -1129,7 +1132,7 @@
         id: 19,
         name: "Portal 2",
         imageUrl: "games/19.webp",
-        link: "https://store.steampowered.com/app/620/Portal_2/",
+        link: "https://store.steampowered.com/app/620/Portal_2/", // Вы сможете добавить ссылку позже
         genre: ["Приключения", "Инди"],
         mood: ["Задумчивое", "Исследовательское"],
         playtime: "1-2 часа",
@@ -1147,7 +1150,7 @@
         id: 20,
         name: "Fortnite",
         imageUrl: "games/20.webp",
-        link: "https://www.fortnite.com/",
+        link: "https://www.fortnite.com/", // Вы сможете добавить ссылку позже
         genre: ["Экшен"],
         mood: ["Энергичное"],
         playtime: "1-2 часа",
@@ -1165,7 +1168,7 @@
         id: 21,
         name: "Dark Souls III",
         imageUrl: "games/21.webp",
-        link: "https://store.steampowered.com/app/374320/DARK_SOULS_III/",
+        link: "https://store.steampowered.com/app/374320/DARK_SOULS_III/", // Вы сможете добавить ссылку позже
         genre: ["RPG", "Экшен"],
         mood: ["Энергичное", "Задумчивое"],
         playtime: "3-4 часа",
@@ -1183,7 +1186,7 @@
         id: 22,
         name: "Overwatch 2",
         imageUrl: "games/22.jpg",
-        link: "https://overwatch.blizzard.com/en-us/",
+        link: "https://overwatch.blizzard.com/en-us/", // Вы сможете добавить ссылку позже
         genre: ["Экшен"],
         mood: ["Энергичное"],
         playtime: "1-2 часа",
@@ -1201,7 +1204,7 @@
         id: 23,
         name: "Hollow Knight",
         imageUrl: "games/23.webp",
-        link: "https://store.steampowered.com/app/367520/Hollow_Knight/",
+        link: "https://store.steampowered.com/app/367520/Hollow_Knight/", // Вы сможете добавить ссылку позже
         genre: ["Инди", "Приключения"],
         mood: ["Задумчивое", "Исследовательское"],
         playtime: "3-4 часа",
@@ -1219,7 +1222,7 @@
         id: 24,
         name: "Fallout 4",
         imageUrl: "games/24.webp",
-        link: "https://store.steampowered.com/app/377160/Fallout_4/",
+        link: "https://store.steampowered.com/app/377160/Fallout_4/", // Вы сможете добавить ссылку позже
         genre: ["RPG", "Экшен"],
         mood: ["Исследовательское", "Задумчивое"],
         playtime: "5+ часов",
@@ -1237,7 +1240,7 @@
         id: 25,
         name: "Apex Legends",
         imageUrl: "games/25.webp",
-        link: "https://www.ea.com/games/apex-legends",
+        link: "https://www.ea.com/games/apex-legends", // Вы сможете добавить ссылку позже
         genre: ["Экшен"],
         mood: ["Энергичное"],
         playtime: "1-2 часа",
@@ -1255,7 +1258,7 @@
         id: 26,
         name: "Undertale",
         imageUrl: "games/26.jpg",
-        link: "https://store.steampowered.com/app/391540/Undertale/",
+        link: "https://store.steampowered.com/app/391540/Undertale/", // Вы сможете добавить ссылку позже
         genre: ["Инди", "RPG"],
         mood: ["Задумчивое", "Спокойное"],
         playtime: "1-2 часа",
@@ -1273,7 +1276,7 @@
         id: 27,
         name: "Grand Theft Auto V",
         imageUrl: "games/27.webp",
-        link: "https://store.steampowered.com/app/271590/Grand_Theft_Auto_V/",
+        link: "https://store.steampowered.com/app/271590/Grand_Theft_Auto_V/", // Вы сможете добавить ссылку позже
         genre: ["Экшен", "Приключения"],
         mood: ["Энергичное", "Исследовательское"],
         playtime: "5+ часов",
@@ -1291,7 +1294,7 @@
         id: 28,
         name: "League of Legends",
         imageUrl: "games/28.jpg",
-        link: "https://www.leagueoflegends.com/",
+        link: "https://www.leagueoflegends.com/", // Вы сможете добавить ссылку позже
         genre: ["Стратегия", "ММО"],
         mood: ["Энергичное", "Агрессивное"],
         playtime: "1-2 часа",
@@ -1309,7 +1312,7 @@
         id: 29,
         name: "Dead by Daylight",
         imageUrl: "games/29.jpg",
-        link: "https://store.steampowered.com/app/381210/Dead_by_Daylight/",
+        link: "https://store.steampowered.com/app/381210/Dead_by_Daylight/", // Вы сможете добавить ссылку позже
         genre: ["Хоррор", "Экшен"],
         mood: ["Энергичное", "Агрессивное"],
         playtime: "1-2 часа",
@@ -1327,7 +1330,7 @@
         id: 30,
         name: "Terraria",
         imageUrl: "games/30.webp",
-        link: "https://store.steampowered.com/app/105600/Terraria/",
+        link: "https://store.steampowered.com/app/105600/Terraria/", // Вы сможете добавить ссылку позже
         genre: ["Приключения", "Инди"],
         mood: ["Спокойное", "Исследовательское"],
         playtime: "5+ часов",
@@ -1342,7 +1345,6 @@
         reason: "Для творческих игроков, любящих исследование и прокачку."
       }
     ];
-
     // ====== GLOBAL VARIABLES ======
     let currentQuestionIndex = 0;
     let userAnswers = {};
@@ -1579,7 +1581,8 @@
         
         gameCard.innerHTML = `
           <div class="catalog-game-image">
-            <img src="${game.imageUrl}" alt="${game.name}" loading="lazy">
+            <img src="${game.imageUrl}" alt="${game.name}" loading="lazy" 
+                 onerror="this.src='https://via.placeholder.com/300x180/2c2c54/8b8b9e?text=${encodeURIComponent(game.name)}'">
           </div>
           <div class="catalog-game-content">
             <h3 class="catalog-game-title">${game.name}</h3>
@@ -1775,7 +1778,8 @@
         
         gameCard.innerHTML = `
           <div class="game-image">
-            <img src="${game.imageUrl}" alt="${game.name}" loading="lazy">
+            <img src="${game.imageUrl}" alt="${game.name}" loading="lazy" 
+                 onerror="this.src='https://via.placeholder.com/400x250/2c2c54/8b8b9e?text=${encodeURIComponent(game.name)}'">
           </div>
           <div class="game-content">
             <h3 class="game-title">${game.name}</h3>
