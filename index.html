@@ -228,6 +228,18 @@
       color: white;
     }
 
+    .btn-catalog {
+      background: linear-gradient(135deg, #4CAF50, #2E7D32);
+      color: white;
+      margin-top: 15px;
+    }
+
+    .btn-back {
+      background: linear-gradient(135deg, #9C27B0, #673AB7);
+      color: white;
+      margin-bottom: 20px;
+    }
+
     /* ====== SIDEBAR ====== */
     .sidebar {
       background: var(--card);
@@ -452,6 +464,14 @@
       line-height: 1.6;
     }
 
+    .welcome-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      max-width: 300px;
+      margin: 0 auto;
+    }
+
     .start-btn {
       padding: 15px 40px;
       font-size: 1.2rem;
@@ -467,6 +487,106 @@
     .start-btn:hover {
       transform: translateY(-3px);
       box-shadow: 0 10px 25px rgba(106, 90, 249, 0.4);
+    }
+
+    /* ====== CATALOG SCREEN ====== */
+    .catalog-container {
+      display: none;
+      animation: fadeIn 0.8s ease;
+    }
+
+    .catalog-title {
+      font-size: 2rem;
+      text-align: center;
+      margin-bottom: 30px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .catalog-subtitle {
+      text-align: center;
+      color: var(--muted);
+      margin-bottom: 40px;
+      font-size: 1.1rem;
+    }
+
+    .catalog-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 25px;
+      margin-bottom: 30px;
+    }
+
+    @media (max-width: 768px) {
+      .catalog-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      }
+    }
+
+    .catalog-game-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--glass-2);
+      transition: transform 0.3s ease;
+    }
+
+    .catalog-game-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 30px rgba(106, 90, 249, 0.15);
+    }
+
+    .catalog-game-image {
+      width: 100%;
+      height: 150px;
+      background: linear-gradient(135deg, #2c2c54, #40407a);
+      border-bottom: 1px solid var(--glass-2);
+      overflow: hidden;
+    }
+
+    .catalog-game-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .catalog-game-content {
+      padding: 15px;
+    }
+
+    .catalog-game-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--text);
+      text-align: center;
+    }
+
+    .catalog-game-genres {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .catalog-game-genre {
+      background: rgba(106, 90, 249, 0.1);
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 0.7rem;
+      color: var(--accent-2);
+    }
+
+    .catalog-game-platforms {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 4px;
+      font-size: 0.75rem;
+      color: var(--muted);
     }
 
     /* ====== LOADING ====== */
@@ -531,7 +651,10 @@
               и наш умный алгоритм подберёт игры, которые идеально вам подойдут.
               Наш каталог содержит более 30 популярных игр разных жанров.
             </p>
-            <button class="start-btn" id="startBtn">Начать тест</button>
+            <div class="welcome-buttons">
+              <button class="start-btn" id="startBtn">Начать тест</button>
+              <button class="btn btn-catalog" id="catalogBtn">Каталог всех игр</button>
+            </div>
           </div>
         </div>
 
@@ -539,6 +662,16 @@
         <div class="loading" id="loading">
           <div class="loading-spinner"></div>
           <p>Анализируем ваши ответы и подбираем идеальные игры...</p>
+        </div>
+
+        <!-- Catalog Screen -->
+        <div class="catalog-container" id="catalogContainer">
+          <button class="btn btn-back" id="backFromCatalogBtn">← Вернуться на главную</button>
+          <h2 class="catalog-title">Каталог всех игр</h2>
+          <p class="catalog-subtitle">Все 30 игр, доступных в нашей системе подбора</p>
+          <div class="catalog-grid" id="catalogGrid">
+            <!-- Games will be inserted here by JavaScript -->
+          </div>
         </div>
 
         <!-- Controls -->
@@ -672,7 +805,7 @@
         id: 1,
         name: "The Witcher 3: Wild Hunt",
         imageUrl: "games/1.jpg",
-        link: "https://store.steampowered.com/app/292030/The_Witcher_3_Wild_Hunt/", // Вы сможете добавить ссылку позже
+        link: "https://store.steampowered.com/app/292030/The_Witcher_3_Wild_Hunt/",
         genre: ["RPG", "Приключения"],
         mood: ["Задумчивое", "Исследовательское"],
         playtime: "3-4 часа",
@@ -690,7 +823,7 @@
         id: 2,
         name: "Elden Ring",
         imageUrl: "games/2.jpg",
-        link: "https://store.steampowered.com/app/1245620/ELDEN_RING/", // Вы сможете добавить ссылку позже
+        link: "https://store.steampowered.com/app/1245620/ELDEN_RING/",
         genre: ["RPG", "Экшен"],
         mood: ["Энергичное", "Исследовательское"],
         playtime: "5+ часов",
@@ -708,7 +841,7 @@
         id: 3,
         name: "Stardew Valley",
         imageUrl: "games/3.webp",
-        link: "https://store.steampowered.com/app/413150/Stardew_Valley/", // Вы сможете добавить ссылку позже
+        link: "https://store.steampowered.com/app/413150/Stardew_Valley/",
         genre: ["Инди", "Симуляторы"],
         mood: ["Спокойное", "Задумчивое"],
         playtime: "1-2 часа",
@@ -726,7 +859,7 @@
         id: 4,
         name: "Call of Duty: Warzone",
         imageUrl: "games/4.webp",
-        link: "https://www.callofduty.com/warzone", // Вы сможете добавить ссылку позже
+        link: "https://www.callofduty.com/warzone",
         genre: ["Экшен"],
         mood: ["Энергичное", "Агрессивное"],
         playtime: "1-2 часа",
@@ -744,7 +877,7 @@
         id: 5,
         name: "Civilization VI",
         imageUrl: "games/5.jpg",
-        link: "https://store.steampowered.com/app/289070/Sid_Meiers_Civilization_VI/", // Вы сможете добавить ссылку позже
+        link: "https://store.steampowered.com/app/289070/Sid_Meiers_Civilization_VI/",
         genre: ["Стратегия"],
         mood: ["Задумчивое", "Исследовательское"],
         playtime: "3-4 часа",
@@ -762,7 +895,7 @@
         id: 6,
         name: "The Legend of Zelda: Breath of the Wild",
         imageUrl: "games/6.webp",
-        link: "https://www.nintendo.com/store/products/the-legend-of-zelda-breath-of-the-wild-switch/", // Вы сможете добавить ссылку позже
+        link: "https://www.nintendo.com/store/products/the-legend-of-zelda-breath-of-the-wild-switch/",
         genre: ["Приключения", "Экшен"],
         mood: ["Исследовательское", "Спокойное"],
         playtime: "3-4 часа",
@@ -780,7 +913,7 @@
         id: 7,
         name: "Among Us",
         imageUrl: "games/7.jpg",
-        link: "https://store.steampowered.com/app/945360/Among_Us/", // Вы сможете добавить ссылку позже
+        link: "https://store.steampowered.com/app/945360/Among_Us/",
         genre: ["Инди"],
         mood: ["Энергичное"],
         playtime: "Меньше 1 часа",
@@ -798,7 +931,7 @@
         id: 8,
         name: "Microsoft Flight Simulator",
         imageUrl: "games/8.png",
-        link: "https://store.steampowered.com/app/1250410/Microsoft_Flight_Simulator/", // Вы сможете добавить ссылку позже
+        link: "https://store.steampowered.com/app/1250410/Microsoft_Flight_Simulator/",
         genre: ["Симуляторы"],
         mood: ["Спокойное", "Исследовательское"],
         playtime: "1-2 часа",
@@ -816,7 +949,7 @@
         id: 9,
         name: "Hades",
         imageUrl: "games/9.webp",
-        link: "https://store.steampowered.com/app/1145360/Hades/", // Вы сможете добавить ссылку позже
+        link: "https://store.steampowered.com/app/1145360/Hades/",
         genre: ["Экшен", "Инди"],
         mood: ["Энергичное"],
         playtime: "1-2 часа",
@@ -834,7 +967,7 @@
         id: 10,
         name: "Red Dead Redemption 2",
         imageUrl: "games/10.webp",
-        link: "https://store.steampowered.com/app/1174180/Red_Dead_Redemption_2/", // Вы сможете добавить ссылку позже
+        link: "https://store.steampowered.com/app/1174180/Red_Dead_Redemption_2/",
         genre: ["Приключения", "Экшен"],
         mood: ["Задумчивое", "Исследовательское"],
         playtime: "5+ часов",
@@ -852,7 +985,7 @@
         id: 11,
         name: "Rocket League",
         imageUrl: "games/11.webp",
-        link: "https://store.epicgames.com/en-US/p/rocket-league", // Вы сможете добавить ссылку позже
+        link: "https://store.epicgames.com/en-US/p/rocket-league",
         genre: ["Гонки", "Экшен", "Спорт"],
         mood: ["Энергичное"],
         playtime: "1-2 часа",
@@ -870,7 +1003,7 @@
         id: 12,
         name: "Celeste",
         imageUrl: "games/12.webp",
-        link: "https://store.steampowered.com/app/504230/Celeste/", // Вы сможете добавить ссылку позже
+        link: "https://store.steampowered.com/app/504230/Celeste/",
         genre: ["Инди", "Экшен"],
         mood: ["Энергичное", "Задумчивое"],
         playtime: "1-2 часа",
@@ -888,7 +1021,7 @@
         id: 13,
         name: "Cyberpunk 2077",
         imageUrl: "games/13.webp",
-        link: "https://store.steampowered.com/app/1091500/Cyberpunk_2077/", // Вы сможете добавить ссылку позже
+        link: "https://store.steampowered.com/app/1091500/Cyberpunk_2077/",
         genre: ["RPG", "Экшен"],
         mood: ["Исследовательское", "Задумчивое"],
         playtime: "3-4 часа",
@@ -906,7 +1039,7 @@
         id: 14,
         name: "Animal Crossing: New Horizons",
         imageUrl: "games/14.jpg",
-        link: "https://www.nintendo.com/store/products/animal-crossing-new-horizons-switch/", // Вы сможете добавить ссылку позже
+        link: "https://www.nintendo.com/store/products/animal-crossing-new-horizons-switch/",
         genre: ["Симуляторы"],
         mood: ["Спокойное"],
         playtime: "1-2 часа",
@@ -924,7 +1057,7 @@
         id: 15,
         name: "Counter-Strike 2",
         imageUrl: "games/15.webp",
-        link: "https://store.steampowered.com/app/730/CounterStrike_2/", // Вы сможете добавить ссылку позже
+        link: "https://store.steampowered.com/app/730/CounterStrike_2/",
         genre: ["Экшен"],
         mood: ["Энергичное", "Агрессивное"],
         playtime: "1-2 часа",
@@ -942,7 +1075,7 @@
         id: 16,
         name: "DOOM Eternal",
         imageUrl: "games/16.webp",
-        link: "https://store.steampowered.com/app/782330/DOOM_Eternal/", // Вы сможете добавить ссылку позже
+        link: "https://store.steampowered.com/app/782330/DOOM_Eternal/",
         genre: ["Экшен"],
         mood: ["Энергичное", "Агрессивное"],
         playtime: "1-2 часа",
@@ -960,7 +1093,7 @@
         id: 17,
         name: "God of War (2018)",
         imageUrl: "games/17.webp",
-        link: "https://store.steampowered.com/app/1593500/God_of_War/", // Вы сможете добавить ссылку позже
+        link: "https://store.steampowered.com/app/1593500/God_of_War/",
         genre: ["Экшен", "Приключения"],
         mood: ["Энергичное", "Задумчивое"],
         playtime: "3-4 часа",
@@ -978,7 +1111,7 @@
         id: 18,
         name: "Minecraft",
         imageUrl: "games/18.png",
-        link: "https://www.minecraft.net/", // Вы сможете добавить ссылку позже
+        link: "https://www.minecraft.net/",
         genre: ["Приключения", "Симуляторы"],
         mood: ["Спокойное", "Исследовательское"],
         playtime: "Целый день",
@@ -996,7 +1129,7 @@
         id: 19,
         name: "Portal 2",
         imageUrl: "games/19.webp",
-        link: "https://store.steampowered.com/app/620/Portal_2/", // Вы сможете добавить ссылку позже
+        link: "https://store.steampowered.com/app/620/Portal_2/",
         genre: ["Приключения", "Инди"],
         mood: ["Задумчивое", "Исследовательское"],
         playtime: "1-2 часа",
@@ -1014,7 +1147,7 @@
         id: 20,
         name: "Fortnite",
         imageUrl: "games/20.webp",
-        link: "https://www.fortnite.com/", // Вы сможете добавить ссылку позже
+        link: "https://www.fortnite.com/",
         genre: ["Экшен"],
         mood: ["Энергичное"],
         playtime: "1-2 часа",
@@ -1032,7 +1165,7 @@
         id: 21,
         name: "Dark Souls III",
         imageUrl: "games/21.webp",
-        link: "https://store.steampowered.com/app/374320/DARK_SOULS_III/", // Вы сможете добавить ссылку позже
+        link: "https://store.steampowered.com/app/374320/DARK_SOULS_III/",
         genre: ["RPG", "Экшен"],
         mood: ["Энергичное", "Задумчивое"],
         playtime: "3-4 часа",
@@ -1050,7 +1183,7 @@
         id: 22,
         name: "Overwatch 2",
         imageUrl: "games/22.jpg",
-        link: "https://overwatch.blizzard.com/en-us/", // Вы сможете добавить ссылку позже
+        link: "https://overwatch.blizzard.com/en-us/",
         genre: ["Экшен"],
         mood: ["Энергичное"],
         playtime: "1-2 часа",
@@ -1068,7 +1201,7 @@
         id: 23,
         name: "Hollow Knight",
         imageUrl: "games/23.webp",
-        link: "https://store.steampowered.com/app/367520/Hollow_Knight/", // Вы сможете добавить ссылку позже
+        link: "https://store.steampowered.com/app/367520/Hollow_Knight/",
         genre: ["Инди", "Приключения"],
         mood: ["Задумчивое", "Исследовательское"],
         playtime: "3-4 часа",
@@ -1086,7 +1219,7 @@
         id: 24,
         name: "Fallout 4",
         imageUrl: "games/24.webp",
-        link: "https://store.steampowered.com/app/377160/Fallout_4/", // Вы сможете добавить ссылку позже
+        link: "https://store.steampowered.com/app/377160/Fallout_4/",
         genre: ["RPG", "Экшен"],
         mood: ["Исследовательское", "Задумчивое"],
         playtime: "5+ часов",
@@ -1104,7 +1237,7 @@
         id: 25,
         name: "Apex Legends",
         imageUrl: "games/25.webp",
-        link: "https://www.ea.com/games/apex-legends", // Вы сможете добавить ссылку позже
+        link: "https://www.ea.com/games/apex-legends",
         genre: ["Экшен"],
         mood: ["Энергичное"],
         playtime: "1-2 часа",
@@ -1122,7 +1255,7 @@
         id: 26,
         name: "Undertale",
         imageUrl: "games/26.jpg",
-        link: "https://store.steampowered.com/app/391540/Undertale/", // Вы сможете добавить ссылку позже
+        link: "https://store.steampowered.com/app/391540/Undertale/",
         genre: ["Инди", "RPG"],
         mood: ["Задумчивое", "Спокойное"],
         playtime: "1-2 часа",
@@ -1140,7 +1273,7 @@
         id: 27,
         name: "Grand Theft Auto V",
         imageUrl: "games/27.webp",
-        link: "https://store.steampowered.com/app/271590/Grand_Theft_Auto_V/", // Вы сможете добавить ссылку позже
+        link: "https://store.steampowered.com/app/271590/Grand_Theft_Auto_V/",
         genre: ["Экшен", "Приключения"],
         mood: ["Энергичное", "Исследовательское"],
         playtime: "5+ часов",
@@ -1158,7 +1291,7 @@
         id: 28,
         name: "League of Legends",
         imageUrl: "games/28.jpg",
-        link: "https://www.leagueoflegends.com/", // Вы сможете добавить ссылку позже
+        link: "https://www.leagueoflegends.com/",
         genre: ["Стратегия", "ММО"],
         mood: ["Энергичное", "Агрессивное"],
         playtime: "1-2 часа",
@@ -1176,7 +1309,7 @@
         id: 29,
         name: "Dead by Daylight",
         imageUrl: "games/29.jpg",
-        link: "https://store.steampowered.com/app/381210/Dead_by_Daylight/", // Вы сможете добавить ссылку позже
+        link: "https://store.steampowered.com/app/381210/Dead_by_Daylight/",
         genre: ["Хоррор", "Экшен"],
         mood: ["Энергичное", "Агрессивное"],
         playtime: "1-2 часа",
@@ -1194,7 +1327,7 @@
         id: 30,
         name: "Terraria",
         imageUrl: "games/30.webp",
-        link: "https://store.steampowered.com/app/105600/Terraria/", // Вы сможете добавить ссылку позже
+        link: "https://store.steampowered.com/app/105600/Terraria/",
         genre: ["Приключения", "Инди"],
         mood: ["Спокойное", "Исследовательское"],
         playtime: "5+ часов",
@@ -1222,10 +1355,14 @@
     const backBtn = document.getElementById('backBtn');
     const nextBtn = document.getElementById('nextBtn');
     const startBtn = document.getElementById('startBtn');
+    const catalogBtn = document.getElementById('catalogBtn');
+    const backFromCatalogBtn = document.getElementById('backFromCatalogBtn');
     const progressFill = document.getElementById('progressFill');
     const progressText = document.getElementById('progressText');
     const resultsContainer = document.getElementById('resultsContainer');
+    const catalogContainer = document.getElementById('catalogContainer');
     const gamesGrid = document.getElementById('gamesGrid');
+    const catalogGrid = document.getElementById('catalogGrid');
     const currentSelection = document.getElementById('currentSelection');
     const restartBtn = document.getElementById('restartBtn');
     const loading = document.getElementById('loading');
@@ -1233,6 +1370,8 @@
 
     // ====== EVENT LISTENERS ======
     startBtn.addEventListener('click', startQuiz);
+    catalogBtn.addEventListener('click', showCatalog);
+    backFromCatalogBtn.addEventListener('click', hideCatalog);
     backBtn.addEventListener('click', goToPreviousQuestion);
     nextBtn.addEventListener('click', goToNextQuestion);
     restartBtn.addEventListener('click', restartQuiz);
@@ -1397,6 +1536,64 @@
       delete selectedAnswers[questionName];
       updateSelectionSidebar();
       showQuestion(currentQuestionIndex);
+    }
+
+    // ====== CATALOG FUNCTIONS ======
+    function showCatalog() {
+      // Hide all other screens
+      questionCard.style.display = 'none';
+      controls.style.display = 'none';
+      resultsContainer.style.display = 'none';
+      welcomeScreen.style.display = 'none';
+      
+      // Show catalog
+      catalogContainer.style.display = 'block';
+      
+      // Display all games
+      displayCatalogGames();
+    }
+
+    function hideCatalog() {
+      // Hide catalog
+      catalogContainer.style.display = 'none';
+      
+      // Show welcome screen
+      questionCard.style.display = 'block';
+      welcomeScreen.style.display = 'block';
+    }
+
+    function displayCatalogGames() {
+      catalogGrid.innerHTML = '';
+      
+      gamesCatalog.forEach(game => {
+        const gameCard = document.createElement('div');
+        gameCard.className = 'catalog-game-card';
+        
+        // Create genres HTML
+        const genresHTML = game.genre.map(genre => 
+          `<span class="catalog-game-genre">${genre}</span>`
+        ).join('');
+        
+        // Create platforms HTML
+        const platformsHTML = game.platform.join(', ');
+        
+        gameCard.innerHTML = `
+          <div class="catalog-game-image">
+            <img src="${game.imageUrl}" alt="${game.name}" loading="lazy">
+          </div>
+          <div class="catalog-game-content">
+            <h3 class="catalog-game-title">${game.name}</h3>
+            <div class="catalog-game-genres">
+              ${genresHTML}
+            </div>
+            <div class="catalog-game-platforms">
+              ${platformsHTML}
+            </div>
+          </div>
+        `;
+        
+        catalogGrid.appendChild(gameCard);
+      });
     }
 
     // ====== RESULTS AND MATCHING ALGORITHM ======
@@ -1601,6 +1798,7 @@
 
     function restartQuiz() {
       resultsContainer.style.display = 'none';
+      catalogContainer.style.display = 'none';
       questionCard.style.display = 'block';
       controls.style.display = 'none';
       
@@ -1620,18 +1818,20 @@
             и наш умный алгоритм подберёт игры, которые идеально вам подойдут.
             Наш каталог содержит более 30 популярных игр разных жанров.
           </p>
-          <button class="start-btn" id="startBtn">Начать тест</button>
+          <div class="welcome-buttons">
+            <button class="start-btn" id="startBtn">Начать тест</button>
+            <button class="btn btn-catalog" id="catalogBtn">Каталог всех игр</button>
+          </div>
         </div>
       `;
       
-      // Добавляем обработчик на новую кнопку
+      // Добавляем обработчики на новые кнопки
       document.getElementById('startBtn').addEventListener('click', startQuiz);
+      document.getElementById('catalogBtn').addEventListener('click', showCatalog);
       
       // Обновляем sidebar
       updateSelectionSidebar();
     }
   </script>
 </body>
-
 </html>
-
