@@ -1,0 +1,1636 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GameMatch — Подбор игр по опросу</title>
+  <style>
+    /* ====== VARIABLES / BASE ====== */
+    :root {
+      --bg: #0f0f23;
+      --card: #1a1a2e;
+      --muted: #8b8b9e;
+      --accent: #6a5af9;
+      --accent-2: #00d4ff;
+      --glass: rgba(255, 255, 255, 0.05);
+      --glass-2: rgba(255, 255, 255, 0.03);
+      --radius: 16px;
+      --max-width: 1200px;
+      --text: #e6e6fa;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: 
+        linear-gradient(135deg, rgba(15, 15, 35, 0.9) 0%, rgba(21, 21, 40, 0.9) 100%),
+        url('games/fon.webp') center/cover fixed;
+      color: var(--text);
+      min-height: 100vh;
+      padding: 20px;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: var(--max-width);
+      margin: 0 auto;
+    }
+
+    /* ====== HEADER ====== */
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+      padding: 40px 20px;
+      background: var(--glass);
+      border-radius: var(--radius);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--glass-2);
+    }
+
+    .logo {
+      font-size: 3rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+    }
+
+    .tagline {
+      font-size: 1.2rem;
+      color: var(--muted);
+      margin-bottom: 30px;
+    }
+
+    /* ====== MAIN CONTENT ====== */
+    .main-content {
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      gap: 30px;
+      align-items: start;
+    }
+
+    @media (max-width: 768px) {
+      .main-content {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ====== QUIZ CONTAINER ====== */
+    .quiz-container {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 30px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--glass-2);
+      position: relative;
+    }
+
+    /* ====== PROGRESS BAR ====== */
+    .progress-container {
+      margin-bottom: 30px;
+    }
+
+    .progress-bar {
+      height: 8px;
+      background: var(--glass);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      border-radius: 10px;
+      transition: width 0.5s ease;
+      width: 0%;
+    }
+
+    .progress-text {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    /* ====== QUESTION CARD ====== */
+    .question-card {
+      background: var(--glass);
+      border-radius: var(--radius);
+      padding: 30px;
+      margin-bottom: 20px;
+      border: 1px solid var(--glass-2);
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .question-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: var(--text);
+    }
+
+    .question-subtitle {
+      color: var(--muted);
+      margin-bottom: 25px;
+      font-size: 1rem;
+    }
+
+    /* ====== ANSWER OPTIONS ====== */
+    .answers-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .answer-option {
+      padding: 16px 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px solid transparent;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 1rem;
+      user-select: none;
+    }
+
+    .answer-option:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .answer-option.selected {
+      background: linear-gradient(135deg, rgba(106, 90, 249, 0.2), rgba(0, 212, 255, 0.1));
+      border-color: var(--accent);
+      box-shadow: 0 5px 15px rgba(106, 90, 249, 0.3);
+    }
+
+    .checkbox-option {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .checkbox-option input {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+    }
+
+    /* ====== CONTROLS ====== */
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 30px;
+    }
+
+    .btn {
+      padding: 12px 30px;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: var(--glass);
+      color: var(--text);
+      border: 1px solid var(--glass-2);
+    }
+
+    .btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: white;
+    }
+
+    .btn-restart {
+      background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+      color: white;
+    }
+
+    /* ====== SIDEBAR ====== */
+    .sidebar {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 25px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--glass-2);
+      position: sticky;
+      top: 20px;
+      height: fit-content;
+    }
+
+    .current-selection {
+      margin-bottom: 25px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .selection-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 15px;
+      color: var(--accent-2);
+    }
+
+    .selection-item {
+      background: var(--glass);
+      padding: 10px 15px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .remove-btn {
+      background: none;
+      border: none;
+      color: #ff6b6b;
+      cursor: pointer;
+      font-size: 1.1rem;
+      padding: 0 5px;
+      transition: transform 0.2s;
+    }
+
+    .remove-btn:hover {
+      transform: scale(1.2);
+    }
+
+    /* ====== RESULTS ====== */
+    .results-container {
+      display: none;
+      animation: fadeIn 0.8s ease;
+    }
+
+    .results-title {
+      font-size: 2rem;
+      text-align: center;
+      margin-bottom: 30px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .results-subtitle {
+      text-align: center;
+      color: var(--muted);
+      margin-bottom: 40px;
+      font-size: 1.1rem;
+    }
+
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 25px;
+      margin-bottom: 30px;
+    }
+
+    @media (max-width: 768px) {
+      .games-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .game-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--glass-2);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .game-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 15px 40px rgba(106, 90, 249, 0.2);
+    }
+
+    .game-image {
+      width: 100%;
+      height: 200px;
+      background: linear-gradient(135deg, #2c2c54, #40407a);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      font-size: 1rem;
+      border-bottom: 1px solid var(--glass-2);
+      overflow: hidden;
+    }
+
+    .game-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+
+    .game-card:hover .game-image img {
+      transform: scale(1.05);
+    }
+
+    .game-content {
+      padding: 20px;
+    }
+
+    .game-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: var(--text);
+    }
+
+    .game-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 15px;
+    }
+
+    .game-tag {
+      background: rgba(106, 90, 249, 0.1);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      color: var(--accent-2);
+    }
+
+    .game-description {
+      color: var(--muted);
+      margin-bottom: 15px;
+      line-height: 1.5;
+      font-size: 0.95rem;
+    }
+
+    .game-reason {
+      background: rgba(106, 90, 249, 0.1);
+      padding: 15px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      border-left: 3px solid var(--accent);
+      margin-top: 10px;
+    }
+
+    .game-match-score {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: white;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-top: 10px;
+    }
+
+    /* ====== КНОПКА ССЫЛКИ НА ИГРУ ====== */
+    .game-link-btn {
+      display: inline-block;
+      margin-top: 15px;
+      padding: 8px 20px;
+      background: linear-gradient(135deg, #4CAF50, #2E7D32);
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      border: none;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .game-link-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+      background: linear-gradient(135deg, #66BB6A, #388E3C);
+    }
+
+    /* ====== WELCOME SCREEN ====== */
+    .welcome-screen {
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    .welcome-title {
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .welcome-text {
+      font-size: 1.2rem;
+      color: var(--muted);
+      margin-bottom: 30px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.6;
+    }
+
+    .start-btn {
+      padding: 15px 40px;
+      font-size: 1.2rem;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: white;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 600;
+    }
+
+    .start-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(106, 90, 249, 0.4);
+    }
+
+    /* ====== LOADING ====== */
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 50px;
+    }
+
+    .loading-spinner {
+      width: 50px;
+      height: 50px;
+      border: 3px solid var(--glass);
+      border-top: 3px solid var(--accent);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* ====== FOOTER ====== */
+    .footer {
+      text-align: center;
+      margin-top: 40px;
+      padding: 20px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      border-top: 1px solid var(--glass);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <h1 class="logo">GameMatch</h1>
+      <p class="tagline">Найди идеальную игру всего за 10 вопросов</p>
+    </header>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Quiz Area -->
+      <div class="quiz-container">
+        <!-- Progress Bar -->
+        <div class="progress-container">
+          <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+          <div class="progress-text" id="progressText">Вопрос 0 из 10</div>
+        </div>
+
+        <!-- Welcome Screen -->
+        <div class="question-card" id="questionCard">
+          <div class="welcome-screen" id="welcomeScreen">
+            <h2 class="welcome-title">Добро пожаловать в GameMatch!</h2>
+            <p class="welcome-text">
+              Ответьте на 10 простых вопросов о ваших игровых предпочтениях, 
+              и наш умный алгоритм подберёт игры, которые идеально вам подойдут.
+              Наш каталог содержит более 30 популярных игр разных жанров.
+            </p>
+            <button class="start-btn" id="startBtn">Начать тест</button>
+          </div>
+        </div>
+
+        <!-- Loading -->
+        <div class="loading" id="loading">
+          <div class="loading-spinner"></div>
+          <p>Анализируем ваши ответы и подбираем идеальные игры...</p>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls" id="controls" style="display: none;">
+          <button class="btn" id="backBtn" disabled>Назад</button>
+          <button class="btn btn-primary" id="nextBtn" disabled>Далее</button>
+        </div>
+
+        <!-- Results -->
+        <div class="results-container" id="resultsContainer">
+          <h2 class="results-title">Ваши рекомендации</h2>
+          <p class="results-subtitle" id="resultsSubtitle">Мы подобрали для вас идеальные игры на основе ваших ответов</p>
+          <div class="games-grid" id="gamesGrid">
+            <!-- Games will be inserted here by JavaScript -->
+          </div>
+          <div class="controls" style="justify-content: center;">
+            <button class="btn btn-restart" id="restartBtn">Пройти тест заново</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <h3 class="selection-title">Ваши ответы</h3>
+        <div class="current-selection" id="currentSelection">
+          <p style="color: var(--muted); font-size: 0.9rem; text-align: center; padding: 20px;">
+            Ответы пока не выбраны
+          </p>
+        </div>
+        <div class="selection-info">
+          <p style="color: var(--muted); font-size: 0.9rem;">
+            Вы можете отменить любой ответ, нажав на кнопку × рядом с ним.
+          </p>
+        </div>
+      </aside>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <p>GameMatch © 2024 | Подбор игр по вашим предпочтениям | Каталог: 30+ игр</p>
+    </div>
+  </div>
+
+  <script>
+    // ====== QUESTIONS DATA ======
+    const questions = [
+      {
+        id: 1,
+        type: 'radio',
+        title: 'Какое у тебя сейчас настроение?',
+        subtitle: 'Выберите один вариант, который лучше всего описывает ваше состояние',
+        name: 'mood',
+        options: ['Энергичное', 'Спокойное', 'Исследовательское', 'Задумчивое', 'Агрессивное']
+      },
+      {
+        id: 2,
+        type: 'checkbox',
+        title: 'В какие жанры игр ты любишь играть?',
+        subtitle: 'Можно выбрать несколько вариантов',
+        name: 'genre',
+        options: ['Экшен', 'RPG', 'Стратегия', 'Гонки', 'Инди', 'Хоррор', 'Симуляторы', 'Приключения', 'Спорт', 'ММО']
+      },
+      {
+        id: 3,
+        type: 'radio',
+        title: 'Сколько времени готов уделить игре за сессию?',
+        subtitle: '',
+        name: 'playtime',
+        options: ['Меньше 1 часа', '1-2 часа', '3-4 часа', '5+ часов', 'Целый день']
+      },
+      {
+        id: 4,
+        type: 'radio',
+        title: 'Предпочитаешь играть один или в компании?',
+        subtitle: '',
+        name: 'company',
+        options: ['Один', 'С друзьями/онлайн', 'Не важно', 'Кооператив с друзьями']
+      },
+      {
+        id: 5,
+        type: 'radio',
+        title: 'Что для тебя важнее в игре?',
+        subtitle: 'Выберите самый важный аспект',
+        name: 'priority',
+        options: ['Сюжет', 'Геймплей', 'Графика', 'Мультиплеер', 'Атмосфера', 'Звук и музыка']
+      },
+      {
+        id: 6,
+        type: 'checkbox',
+        title: 'Какую платформу ты используешь?',
+        subtitle: 'Можно выбрать несколько вариантов',
+        name: 'platform',
+        options: ['ПК', 'PlayStation', 'Xbox', 'Nintendo Switch', 'Мобильная']
+      },
+      {
+        id: 7,
+        type: 'radio',
+        title: 'Нравится ли тебе сложный, требующий мастерства геймплей?',
+        subtitle: '',
+        name: 'difficulty',
+        options: ['Да, люблю вызов', 'Нет, предпочитаю расслабиться', 'Иногда', 'Только если есть легкий режим']
+      },
+      {
+        id: 8,
+        type: 'radio',
+        title: 'Любишь ли ты игры с открытым миром?',
+        subtitle: '',
+        name: 'openWorld',
+        options: ['Да, обожаю исследовать', 'Нет, предпочитаю линейные', 'Не обязательно', 'Если мир интересный']
+      },
+      {
+        id: 9,
+        type: 'radio',
+        title: 'Как относишься к пиксельной графике?',
+        subtitle: '',
+        name: 'graphics',
+        options: ['Обожаю ретро-стиль', 'Нейтрально', 'Предпочитаю современную 3D-графику', 'Главное - художественный стиль']
+      },
+      {
+        id: 10,
+        type: 'radio',
+        title: 'Ищешь ли ты новинку или классику?',
+        subtitle: '',
+        name: 'release',
+        options: ['Новинки (последние 2-3 года)', 'Проверенные временем классики', 'Все равно', 'Инди-новинки']
+      }
+    ];
+
+    // ====== GAMES CATALOG (30+ игр с изображениями) ======
+    const gamesCatalog = [
+      {
+        id: 1,
+        name: "The Witcher 3: Wild Hunt",
+        imageUrl: "games/1.jpg",
+        link: "https://store.steampowered.com/app/292030/The_Witcher_3_Wild_Hunt/", // Вы сможете добавить ссылку позже
+        genre: ["RPG", "Приключения"],
+        mood: ["Задумчивое", "Исследовательское"],
+        playtime: "3-4 часа",
+        company: "Один",
+        priority: "Сюжет",
+        platform: ["ПК", "PlayStation", "Xbox"],
+        difficulty: "Иногда",
+        openWorld: "Да, обожаю исследовать",
+        graphics: "Предпочитаю современную 3D-графику",
+        release: "Проверенные временем классики",
+        description: "Эпическая RPG с богатым сюжетом и огромным открытым миром. Идеальна для тех, кто любит погружаться в истории и исследовать каждый уголок карты.",
+        reason: "Вам понравится глубокий сюжет и свобода исследования."
+      },
+      {
+        id: 2,
+        name: "Elden Ring",
+        imageUrl: "games/2.jpg",
+        link: "https://store.steampowered.com/app/1245620/ELDEN_RING/", // Вы сможете добавить ссылку позже
+        genre: ["RPG", "Экшен"],
+        mood: ["Энергичное", "Исследовательское"],
+        playtime: "5+ часов",
+        company: "Один",
+        priority: "Геймплей",
+        platform: ["ПК", "PlayStation", "Xbox"],
+        difficulty: "Да, люблю вызов",
+        openWorld: "Да, обожаю исследовать",
+        graphics: "Предпочитаю современную 3D-графику",
+        release: "Новинки (последние 2-3 года)",
+        description: "Хардкорная RPG с открытым миром и насыщенным боевым геймплеем, требующим мастерства и тактики.",
+        reason: "Подойдёт, если вы любите сложные и вознаграждающие систему боя."
+      },
+      {
+        id: 3,
+        name: "Stardew Valley",
+        imageUrl: "games/3.webp",
+        link: "https://store.steampowered.com/app/413150/Stardew_Valley/", // Вы сможете добавить ссылку позже
+        genre: ["Инди", "Симуляторы"],
+        mood: ["Спокойное", "Задумчивое"],
+        playtime: "1-2 часа",
+        company: "Один",
+        priority: "Геймплей",
+        platform: ["ПК", "Nintendo Switch", "Мобильная"],
+        difficulty: "Нет, предпочитаю расслабиться",
+        openWorld: "Если мир интересный",
+        graphics: "Обожаю ретро-стиль",
+        release: "Проверенные временем классики",
+        description: "Тёплый симулятор фермы с множеством занятий: выращивание, крафт, отношения с NPC.",
+        reason: "Подойдёт для спокойной игры и тех, кто любит пиксельную эстетику."
+      },
+      {
+        id: 4,
+        name: "Call of Duty: Warzone",
+        imageUrl: "games/4.webp",
+        link: "https://www.callofduty.com/warzone", // Вы сможете добавить ссылку позже
+        genre: ["Экшен"],
+        mood: ["Энергичное", "Агрессивное"],
+        playtime: "1-2 часа",
+        company: "С друзьями/онлайн",
+        priority: "Мультиплеер",
+        platform: ["ПК", "PlayStation", "Xbox"],
+        difficulty: "Иногда",
+        openWorld: "Нет, предпочитаю линейные",
+        graphics: "Предпочитаю современную 3D-графику",
+        release: "Новинки (последние 2-3 года)",
+        description: "Бесплатный шутер от первого лица в жанре королевской битвы с динамичными сражениями.",
+        reason: "Идеально для игры с друзьями и любителей соревновательного геймплея."
+      },
+      {
+        id: 5,
+        name: "Civilization VI",
+        imageUrl: "games/5.jpg",
+        link: "https://store.steampowered.com/app/289070/Sid_Meiers_Civilization_VI/", // Вы сможете добавить ссылку позже
+        genre: ["Стратегия"],
+        mood: ["Задумчивое", "Исследовательское"],
+        playtime: "3-4 часа",
+        company: "Один",
+        priority: "Геймплей",
+        platform: ["ПК", "Nintendo Switch"],
+        difficulty: "Иногда",
+        openWorld: "Не обязательно",
+        graphics: "Предпочитаю современную 3D-графику",
+        release: "Проверенные временем классики",
+        description: "Глубокая пошаговая стратегия, где вы строите цивилизацию через века.",
+        reason: "Подойдёт тем, кто любит планирование и глубокие стратегические решения."
+      },
+      {
+        id: 6,
+        name: "The Legend of Zelda: Breath of the Wild",
+        imageUrl: "games/6.webp",
+        link: "https://www.nintendo.com/store/products/the-legend-of-zelda-breath-of-the-wild-switch/", // Вы сможете добавить ссылку позже
+        genre: ["Приключения", "Экшен"],
+        mood: ["Исследовательское", "Спокойное"],
+        playtime: "3-4 часа",
+        company: "Один",
+        priority: "Геймплей",
+        platform: ["Nintendo Switch"],
+        difficulty: "Иногда",
+        openWorld: "Да, обожаю исследовать",
+        graphics: "Предпочитаю современную 3D-графику",
+        release: "Проверенные временем классики",
+        description: "Новаторская игра с открытым миром, где можно исследовать каждый уголок карты.",
+        reason: "Для тех, кто ценит свободу исследований и творческий подход к решению задач."
+      },
+      {
+        id: 7,
+        name: "Among Us",
+        imageUrl: "games/7.jpg",
+        link: "https://store.steampowered.com/app/945360/Among_Us/", // Вы сможете добавить ссылку позже
+        genre: ["Инди"],
+        mood: ["Энергичное"],
+        playtime: "Меньше 1 часа",
+        company: "С друзьями/онлайн",
+        priority: "Мультиплеер",
+        platform: ["ПК", "Мобильная", "Nintendo Switch"],
+        difficulty: "Нет, предпочитаю расслабиться",
+        openWorld: "Нет, предпочитаю линейные",
+        graphics: "Обожаю ретро-стиль",
+        release: "Новинки (последние 2-3 года)",
+        description: "Социальная игра-детектив в кругу друзей — простая и быстрая для вечеринки.",
+        reason: "Если вы хотите играть с друзьями и получать быстрые эмоции — отличный выбор."
+      },
+      {
+        id: 8,
+        name: "Microsoft Flight Simulator",
+        imageUrl: "games/8.png",
+        link: "https://store.steampowered.com/app/1250410/Microsoft_Flight_Simulator/", // Вы сможете добавить ссылку позже
+        genre: ["Симуляторы"],
+        mood: ["Спокойное", "Исследовательское"],
+        playtime: "1-2 часа",
+        company: "Один",
+        priority: "Графика",
+        platform: ["ПК", "Xbox"],
+        difficulty: "Иногда",
+        openWorld: "Да, обожаю исследовать",
+        graphics: "Предпочитаю современную 3D-графику",
+        release: "Новинки (последние 2-3 года)",
+        description: "Невероятно детализированный авиасимулятор с фотреалистичной графикой.",
+        reason: "Для ценителей красивой графики и спокойного, медитативного геймплея."
+      },
+      {
+        id: 9,
+        name: "Hades",
+        imageUrl: "games/9.webp",
+        link: "https://store.steampowered.com/app/1145360/Hades/", // Вы сможете добавить ссылку позже
+        genre: ["Экшен", "Инди"],
+        mood: ["Энергичное"],
+        playtime: "1-2 часа",
+        company: "Один",
+        priority: "Геймплей",
+        platform: ["ПК", "Nintendo Switch"],
+        difficulty: "Да, люблю вызов",
+        openWorld: "Нет, предпочитаю линейные",
+        graphics: "Главное - художественный стиль",
+        release: "Инди-новинки",
+        description: "Динамичный рогалик с быстрыми боями, отличным саундтреком и стильной подачей истории.",
+        reason: "Если вы цените азартный боевой геймплей и короткие сессии — Hades идеален."
+      },
+      {
+        id: 10,
+        name: "Red Dead Redemption 2",
+        imageUrl: "games/10.webp",
+        link: "https://store.steampowered.com/app/1174180/Red_Dead_Redemption_2/", // Вы сможете добавить ссылку позже
+        genre: ["Приключения", "Экшен"],
+        mood: ["Задумчивое", "Исследовательское"],
+        playtime: "5+ часов",
+        company: "Один",
+        priority: "Сюжет",
+        platform: ["ПК", "PlayStation", "Xbox"],
+        difficulty: "Иногда",
+        openWorld: "Да, обожаю исследовать",
+        graphics: "Предпочитаю современную 3D-графику",
+        release: "Проверенные временем классики",
+        description: "Меморативная история в атмосферном открытым мире с упором на сюжет и детали.",
+        reason: "Для тех, кто ценит атмосферу, проработанный сюжет и кинематографичный дизайн."
+      },
+      {
+        id: 11,
+        name: "Rocket League",
+        imageUrl: "games/11.webp",
+        link: "https://store.epicgames.com/en-US/p/rocket-league", // Вы сможете добавить ссылку позже
+        genre: ["Гонки", "Экшен", "Спорт"],
+        mood: ["Энергичное"],
+        playtime: "1-2 часа",
+        company: "С друзьями/онлайн",
+        priority: "Геймплей",
+        platform: ["ПК", "PlayStation", "Xbox", "Nintendo Switch"],
+        difficulty: "Иногда",
+        openWorld: "Нет, предпочитаю линейные",
+        graphics: "Предпочитаю современную 3D-графику",
+        release: "Проверенные временем классики",
+        description: "Футбол на ракетных автомобилях — быстрая и аддиктивная multiplayer-игра.",
+        reason: "Отлично подходит для коротких игровых сессий с друзьями."
+      },
+      {
+        id: 12,
+        name: "Celeste",
+        imageUrl: "games/12.webp",
+        link: "https://store.steampowered.com/app/504230/Celeste/", // Вы сможете добавить ссылку позже
+        genre: ["Инди", "Экшен"],
+        mood: ["Энергичное", "Задумчивое"],
+        playtime: "1-2 часа",
+        company: "Один",
+        priority: "Геймплей",
+        platform: ["ПК", "Nintendo Switch", "Мобильная"],
+        difficulty: "Да, люблю вызов",
+        openWorld: "Нет, предпочитаю линейные",
+        graphics: "Обожаю ретро-стиль",
+        release: "Инди-новинки",
+        description: "Платформер с глубокой историей и сложным, но справедливым геймплеем.",
+        reason: "Для любителей сложных испытаний и пиксельной графики с душой."
+      },
+      {
+        id: 13,
+        name: "Cyberpunk 2077",
+        imageUrl: "games/13.webp",
+        link: "https://store.steampowered.com/app/1091500/Cyberpunk_2077/", // Вы сможете добавить ссылку позже
+        genre: ["RPG", "Экшен"],
+        mood: ["Исследовательское", "Задумчивое"],
+        playtime: "3-4 часа",
+        company: "Один",
+        priority: "Сюжет",
+        platform: ["ПК", "PlayStation", "Xbox"],
+        difficulty: "Иногда",
+        openWorld: "Да, обожаю исследовать",
+        graphics: "Предпочитаю современную 3D-графику",
+        release: "Новинки (последние 2-3 года)",
+        description: "Иммерсивная RPG в киберпанк-сеттинге с нелинейным сюжетом и детализированным миром.",
+        reason: "Подойдет тем, кто любит глубокие сюжеты и футуристическую атмосферу."
+      },
+      {
+        id: 14,
+        name: "Animal Crossing: New Horizons",
+        imageUrl: "games/14.jpg",
+        link: "https://www.nintendo.com/store/products/animal-crossing-new-horizons-switch/", // Вы сможете добавить ссылку позже
+        genre: ["Симуляторы"],
+        mood: ["Спокойное"],
+        playtime: "1-2 часа",
+        company: "Не важно",
+        priority: "Геймплей",
+        platform: ["Nintendo Switch"],
+        difficulty: "Нет, предпочитаю расслабиться",
+        openWorld: "Если мир интересный",
+        graphics: "Нейтрально",
+        release: "Новинки (последние 2-3 года)",
+        description: "Уютный симулятор жизни на необитаемом острове с безграничными возможностями творчества.",
+        reason: "Идеальна для расслабления и творческого самовыражения."
+      },
+      {
+        id: 15,
+        name: "Counter-Strike 2",
+        imageUrl: "games/15.webp",
+        link: "https://store.steampowered.com/app/730/CounterStrike_2/", // Вы сможете добавить ссылку позже
+        genre: ["Экшен"],
+        mood: ["Энергичное", "Агрессивное"],
+        playtime: "1-2 часа",
+        company: "С друзьями/онлайн",
+        priority: "Мультиплеер",
+        platform: ["ПК"],
+        difficulty: "Да, люблю вызов",
+        openWorld: "Нет, предпочитаю линейные",
+        graphics: "Предпочитаю современную 3D-графику",
+        release: "Новинки (последние 2-3 года)",
+        description: "Культовый тактический шутер с соревновательным мультиплеером.",
+        reason: "Для любителей соревновательных игр и тактического геймплея."
+      },
+      {
+        id: 16,
+        name: "DOOM Eternal",
+        imageUrl: "games/16.webp",
+        link: "https://store.steampowered.com/app/782330/DOOM_Eternal/", // Вы сможете добавить ссылку позже
+        genre: ["Экшен"],
+        mood: ["Энергичное", "Агрессивное"],
+        playtime: "1-2 часа",
+        company: "Один",
+        priority: "Геймплей",
+        platform: ["ПК", "PlayStation", "Xbox"],
+        difficulty: "Да, любю вызов",
+        openWorld: "Нет, предпочитаю линейные",
+        graphics: "Предпочитаю современную 3D-графику",
+        release: "Новинки (последние 2-3 года)",
+        description: "Безумный шутер с максимальной агрессией, быстрым геймплеем и кровавыми сражениями.",
+        reason: "Для тех, кто ищет адреналин и сложные боевые испытания."
+      },
+      {
+        id: 17,
+        name: "God of War (2018)",
+        imageUrl: "games/17.webp",
+        link: "https://store.steampowered.com/app/1593500/God_of_War/", // Вы сможете добавить ссылку позже
+        genre: ["Экшен", "Приключения"],
+        mood: ["Энергичное", "Задумчивое"],
+        playtime: "3-4 часа",
+        company: "Один",
+        priority: "Сюжет",
+        platform: ["PlayStation", "ПК"],
+        difficulty: "Иногда",
+        openWorld: "Если мир интересный",
+        graphics: "Предпочитаю современную 3D-графику",
+        release: "Проверенные временем классики",
+        description: "Эпическое приключение Кратоса и его сына Атрея по скандинавским землям.",
+        reason: "Идеально для любителей эпичных сюжетов и качественных экшен-сцен."
+      },
+      {
+        id: 18,
+        name: "Minecraft",
+        imageUrl: "games/18.png",
+        link: "https://www.minecraft.net/", // Вы сможете добавить ссылку позже
+        genre: ["Приключения", "Симуляторы"],
+        mood: ["Спокойное", "Исследовательское"],
+        playtime: "Целый день",
+        company: "Не важно",
+        priority: "Геймплей",
+        platform: ["ПК", "PlayStation", "Xbox", "Nintendo Switch", "Мобильная"],
+        difficulty: "Нет, предпочитаю расслабиться",
+        openWorld: "Да, обожаю исследовать",
+        graphics: "Нейтрально",
+        release: "Проверенные временем классики",
+        description: "Легендарная песочница с бесконечными возможностями для творчества и исследования.",
+        reason: "Для творческих натур и тех, кто любит создавать что-то своё."
+      },
+      {
+        id: 19,
+        name: "Portal 2",
+        imageUrl: "games/19.webp",
+        link: "https://store.steampowered.com/app/620/Portal_2/", // Вы сможете добавить ссылку позже
+        genre: ["Приключения", "Инди"],
+        mood: ["Задумчивое", "Исследовательское"],
+        playtime: "1-2 часа",
+        company: "Кооператив с друзьями",
+        priority: "Геймплей",
+        platform: ["ПК", "PlayStation", "Xbox"],
+        difficulty: "Иногда",
+        openWorld: "Нет, предпочитаю линейные",
+        graphics: "Нейтрально",
+        release: "Проверенные временем классики",
+        description: "Гениальный головоломный платформер с уникальной механикой порталов.",
+        reason: "Для любителей интеллектуальных вызовов и остроумного юмора."
+      },
+      {
+        id: 20,
+        name: "Fortnite",
+        imageUrl: "games/20.webp",
+        link: "https://www.fortnite.com/", // Вы сможете добавить ссылку позже
+        genre: ["Экшен"],
+        mood: ["Энергичное"],
+        playtime: "1-2 часа",
+        company: "С друзьями/онлайн",
+        priority: "Мультиплеер",
+        platform: ["ПК", "PlayStation", "Xbox", "Nintendo Switch", "Мобильная"],
+        difficulty: "Иногда",
+        openWorld: "Если мир интересный",
+        graphics: "Предпочитаю современную 3D-графику",
+        release: "Новинки (последние 2-3 года)",
+        description: "Бесплатная королевская битва с элементами строительства и регулярными обновлениями.",
+        reason: "Идеально для игры с друзьями и любителей регулярного контента."
+      },
+      {
+        id: 21,
+        name: "Dark Souls III",
+        imageUrl: "games/21.webp",
+        link: "https://store.steampowered.com/app/374320/DARK_SOULS_III/", // Вы сможете добавить ссылку позже
+        genre: ["RPG", "Экшен"],
+        mood: ["Энергичное", "Задумчивое"],
+        playtime: "3-4 часа",
+        company: "Один",
+        priority: "Геймплей",
+        platform: ["ПК", "PlayStation", "Xbox"],
+        difficulty: "Да, люблю вызов",
+        openWorld: "Не обязательно",
+        graphics: "Предпочитаю современную 3D-графику",
+        release: "Проверенные временем классики",
+        description: "Хардкорная RPG с мрачной атмосферой и сложным, но справедливым геймплеем.",
+        reason: "Для тех, кто ищет настоящий вызов и глубокую, мрачную атмосферу."
+      },
+      {
+        id: 22,
+        name: "Overwatch 2",
+        imageUrl: "games/22.jpg",
+        link: "https://overwatch.blizzard.com/en-us/", // Вы сможете добавить ссылку позже
+        genre: ["Экшен"],
+        mood: ["Энергичное"],
+        playtime: "1-2 часа",
+        company: "С друзьями/онлайн",
+        priority: "Мультиплеер",
+        platform: ["ПК", "PlayStation", "Xbox", "Nintendo Switch"],
+        difficulty: "Иногда",
+        openWorld: "Нет, предпочитаю линейные",
+        graphics: "Предпочитаю современную 3D-графику",
+        release: "Новинки (последние 2-3 года)",
+        description: "Командный шутер от первого лица с уникальными героями и способностями.",
+        reason: "Для любителей командной игры и разнообразных игровых стилей."
+      },
+      {
+        id: 23,
+        name: "Hollow Knight",
+        imageUrl: "games/23.webp",
+        link: "https://store.steampowered.com/app/367520/Hollow_Knight/", // Вы сможете добавить ссылку позже
+        genre: ["Инди", "Приключения"],
+        mood: ["Задумчивое", "Исследовательское"],
+        playtime: "3-4 часа",
+        company: "Один",
+        priority: "Атмосфера",
+        platform: ["ПК", "Nintendo Switch", "PlayStation", "Xbox"],
+        difficulty: "Да, люблю вызов",
+        openWorld: "Да, обожаю исследовать",
+        graphics: "Обожаю ретро-стиль",
+        release: "Инди-новинки",
+        description: "Изысканный метроидвания с огромным подземным миром и сложными боссами.",
+        reason: "Для ценителей атмосферных миров и сложных, но справедливых испытаний."
+      },
+      {
+        id: 24,
+        name: "Fallout 4",
+        imageUrl: "games/24.webp",
+        link: "https://store.steampowered.com/app/377160/Fallout_4/", // Вы сможете добавить ссылку позже
+        genre: ["RPG", "Экшен"],
+        mood: ["Исследовательское", "Задумчивое"],
+        playtime: "5+ часов",
+        company: "Один",
+        priority: "Сюжет",
+        platform: ["ПК", "PlayStation", "Xbox"],
+        difficulty: "Иногда",
+        openWorld: "Да, обожаю исследовать",
+        graphics: "Предпочитаю современную 3D-графику",
+        release: "Проверенные временем классики",
+        description: "Постапокалиптическая RPG с глубоким сюжетом, строительством поселений и исследованием пустошей.",
+        reason: "Для любителей постапокалиптических миров и свободы выбора."
+      },
+      {
+        id: 25,
+        name: "Apex Legends",
+        imageUrl: "games/25.webp",
+        link: "https://www.ea.com/games/apex-legends", // Вы сможете добавить ссылку позже
+        genre: ["Экшен"],
+        mood: ["Энергичное"],
+        playtime: "1-2 часа",
+        company: "С друзьями/онлайн",
+        priority: "Мультиплеер",
+        platform: ["ПК", "PlayStation", "Xbox", "Nintendo Switch"],
+        difficulty: "Иногда",
+        openWorld: "Если мир интересный",
+        graphics: "Предпочитаю современную 3D-графику",
+        release: "Новинки (последние 2-3 года)",
+        description: "Бесплатная королевская битва с уникальными персонажами-легендами и быстрым геймплеем.",
+        reason: "Для любителей динамичных сражений и командной тактики."
+      },
+      {
+        id: 26,
+        name: "Undertale",
+        imageUrl: "games/26.jpg",
+        link: "https://store.steampowered.com/app/391540/Undertale/", // Вы сможете добавить ссылку позже
+        genre: ["Инди", "RPG"],
+        mood: ["Задумчивое", "Спокойное"],
+        playtime: "1-2 часа",
+        company: "Один",
+        priority: "Сюжет",
+        platform: ["ПК", "Nintendo Switch", "PlayStation"],
+        difficulty: "Только если есть легкий режим",
+        openWorld: "Не обязательно",
+        graphics: "Обожаю ретро-стиль",
+        release: "Инди-новинки",
+        description: "Уникальная RPG, где можно пройти игру без убийств, с глубокими персонажами и запоминающимся саундтреком.",
+        reason: "Для тех, кто ценит необычные истории и моральный выбор."
+      },
+      {
+        id: 27,
+        name: "Grand Theft Auto V",
+        imageUrl: "games/27.webp",
+        link: "https://store.steampowered.com/app/271590/Grand_Theft_Auto_V/", // Вы сможете добавить ссылку позже
+        genre: ["Экшен", "Приключения"],
+        mood: ["Энергичное", "Исследовательское"],
+        playtime: "5+ часов",
+        company: "Не важно",
+        priority: "Геймплей",
+        platform: ["ПК", "PlayStation", "Xbox"],
+        difficulty: "Иногда",
+        openWorld: "Да, обожаю исследовать",
+        graphics: "Предпочитаю современную 3D-графику",
+        release: "Проверенные временем классики",
+        description: "Масштабная криминальная сага с тремя протагонистами и огромным открытым миром Лос-Сантоса.",
+        reason: "Для любителей свободы действий и масштабных открытых миров."
+      },
+      {
+        id: 28,
+        name: "League of Legends",
+        imageUrl: "games/28.jpg",
+        link: "https://www.leagueoflegends.com/", // Вы сможете добавить ссылку позже
+        genre: ["Стратегия", "ММО"],
+        mood: ["Энергичное", "Агрессивное"],
+        playtime: "1-2 часа",
+        company: "С друзьями/онлайн",
+        priority: "Мультиплеер",
+        platform: ["ПК"],
+        difficulty: "Да, люблю вызов",
+        openWorld: "Нет, предпочитаю линейные",
+        graphics: "Предпочитаю современную 3D-графику",
+        release: "Проверенные временем классики",
+        description: "Культовая MOBA с сотнями чемпионов, регулярными обновлениями и киберспортивной сценой.",
+        reason: "Для любителей глубокой тактики и соревновательных игр."
+      },
+      {
+        id: 29,
+        name: "Dead by Daylight",
+        imageUrl: "games/29.jpg",
+        link: "https://store.steampowered.com/app/381210/Dead_by_Daylight/", // Вы сможете добавить ссылку позже
+        genre: ["Хоррор", "Экшен"],
+        mood: ["Энергичное", "Агрессивное"],
+        playtime: "1-2 часа",
+        company: "С друзьями/онлайн",
+        priority: "Мультиплеер",
+        platform: ["ПК", "PlayStation", "Xbox", "Nintendo Switch"],
+        difficulty: "Иногда",
+        openWorld: "Нет, предпочитаю линейные",
+        graphics: "Предпочитаю современную 3D-графику",
+        release: "Новинки (последние 2-3 года)",
+        description: "Асимметричный хоррор, где четыре выживших пытаются спастись от убийцы.",
+        reason: "Для любителей хорроров и асимметричного мультиплеера."
+      },
+      {
+        id: 30,
+        name: "Terraria",
+        imageUrl: "games/30.webp",
+        link: "https://store.steampowered.com/app/105600/Terraria/", // Вы сможете добавить ссылку позже
+        genre: ["Приключения", "Инди"],
+        mood: ["Спокойное", "Исследовательское"],
+        playtime: "5+ часов",
+        company: "Кооператив с друзьями",
+        priority: "Геймплей",
+        platform: ["ПК", "PlayStation", "Xbox", "Nintendo Switch", "Мобильная"],
+        difficulty: "Иногда",
+        openWorld: "Да, обожаю исследовать",
+        graphics: "Обожаю ретро-стиль",
+        release: "Проверенные временем классики",
+        description: "2D-песочница с элементами экшена, RPG и строительства, огромным количеством контента.",
+        reason: "Для творческих игроков, любящих исследование и прокачку."
+      }
+    ];
+
+    // ====== GLOBAL VARIABLES ======
+    let currentQuestionIndex = 0;
+    let userAnswers = {};
+    let selectedAnswers = {};
+
+    // ====== DOM ELEMENTS ======
+    const questionCard = document.getElementById('questionCard');
+    const welcomeScreen = document.getElementById('welcomeScreen');
+    const controls = document.getElementById('controls');
+    const backBtn = document.getElementById('backBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const startBtn = document.getElementById('startBtn');
+    const progressFill = document.getElementById('progressFill');
+    const progressText = document.getElementById('progressText');
+    const resultsContainer = document.getElementById('resultsContainer');
+    const gamesGrid = document.getElementById('gamesGrid');
+    const currentSelection = document.getElementById('currentSelection');
+    const restartBtn = document.getElementById('restartBtn');
+    const loading = document.getElementById('loading');
+    const resultsSubtitle = document.getElementById('resultsSubtitle');
+
+    // ====== EVENT LISTENERS ======
+    startBtn.addEventListener('click', startQuiz);
+    backBtn.addEventListener('click', goToPreviousQuestion);
+    nextBtn.addEventListener('click', goToNextQuestion);
+    restartBtn.addEventListener('click', restartQuiz);
+
+    // ====== QUIZ FUNCTIONS ======
+    function startQuiz() {
+      welcomeScreen.style.display = 'none';
+      controls.style.display = 'flex';
+      currentQuestionIndex = 0;
+      userAnswers = {};
+      selectedAnswers = {};
+      updateSelectionSidebar();
+      showQuestion(currentQuestionIndex);
+    }
+
+    function showQuestion(index) {
+      if (index < 0 || index >= questions.length) return;
+
+      const question = questions[index];
+      updateProgressBar(index);
+      
+      let answersHTML = '';
+      
+      if (question.type === 'radio') {
+        question.options.forEach(option => {
+          const isChecked = userAnswers[question.name] === option;
+          answersHTML += `
+            <div class="answer-option ${isChecked ? 'selected' : ''}" 
+                 onclick="selectRadioOption('${question.name}', '${option}')">
+              ${option}
+            </div>
+          `;
+        });
+      } else if (question.type === 'checkbox') {
+        question.options.forEach(option => {
+          const isChecked = userAnswers[question.name] && userAnswers[question.name].includes(option);
+          answersHTML += `
+            <div class="answer-option checkbox-option ${isChecked ? 'selected' : ''}" 
+                 onclick="toggleCheckboxOption('${question.name}', '${option}')">
+              <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="toggleCheckboxOption('${question.name}', '${option}')">
+              <span>${option}</span>
+            </div>
+          `;
+        });
+      }
+
+      questionCard.innerHTML = `
+        <h2 class="question-title">${question.title}</h2>
+        ${question.subtitle ? `<p class="question-subtitle">${question.subtitle}</p>` : ''}
+        <div class="answers-container">
+          ${answersHTML}
+        </div>
+      `;
+
+      // Update button states
+      backBtn.disabled = index === 0;
+      nextBtn.disabled = !isQuestionAnswered(question.name);
+    }
+
+    function selectRadioOption(questionName, option) {
+      userAnswers[questionName] = option;
+      selectedAnswers[questionName] = [option];
+      updateSelectionSidebar();
+      showQuestion(currentQuestionIndex);
+    }
+
+    function toggleCheckboxOption(questionName, option) {
+      if (!userAnswers[questionName]) {
+        userAnswers[questionName] = [];
+      }
+      
+      const index = userAnswers[questionName].indexOf(option);
+      if (index === -1) {
+        userAnswers[questionName].push(option);
+      } else {
+        userAnswers[questionName].splice(index, 1);
+      }
+      
+      selectedAnswers[questionName] = userAnswers[questionName];
+      updateSelectionSidebar();
+      showQuestion(currentQuestionIndex);
+    }
+
+    function isQuestionAnswered(questionName) {
+      if (!userAnswers[questionName]) return false;
+      if (Array.isArray(userAnswers[questionName])) {
+        return userAnswers[questionName].length > 0;
+      }
+      return userAnswers[questionName] !== '';
+    }
+
+    function updateProgressBar(index) {
+      const progress = ((index + 1) / questions.length) * 100;
+      progressFill.style.width = `${progress}%`;
+      progressText.textContent = `Вопрос ${index + 1} из ${questions.length}`;
+    }
+
+    function goToNextQuestion() {
+      if (currentQuestionIndex < questions.length - 1) {
+        currentQuestionIndex++;
+        showQuestion(currentQuestionIndex);
+      } else {
+        showResults();
+      }
+    }
+
+    function goToPreviousQuestion() {
+      if (currentQuestionIndex > 0) {
+        currentQuestionIndex--;
+        showQuestion(currentQuestionIndex);
+      }
+    }
+
+    function updateSelectionSidebar() {
+      let selectionHTML = '';
+      
+      questions.forEach(question => {
+        if (userAnswers[question.name]) {
+          let answerDisplay;
+          if (Array.isArray(userAnswers[question.name])) {
+            answerDisplay = userAnswers[question.name].join(', ');
+          } else {
+            answerDisplay = userAnswers[question.name];
+          }
+          
+          if (answerDisplay) {
+            selectionHTML += `
+              <div class="selection-item">
+                <span>${getShortQuestionName(question.name)}: ${answerDisplay}</span>
+                <button class="remove-btn" onclick="removeAnswer('${question.name}')">×</button>
+              </div>
+            `;
+          }
+        }
+      });
+      
+      if (selectionHTML) {
+        currentSelection.innerHTML = selectionHTML;
+      } else {
+        currentSelection.innerHTML = '<p style="color: var(--muted); font-size: 0.9rem; text-align: center; padding: 20px;">Ответы пока не выбраны</p>';
+      }
+    }
+
+    function getShortQuestionName(fullName) {
+      const names = {
+        'mood': 'Настроение',
+        'genre': 'Жанры',
+        'playtime': 'Время',
+        'company': 'Компания',
+        'priority': 'Приоритет',
+        'platform': 'Платформы',
+        'difficulty': 'Сложность',
+        'openWorld': 'Открытый мир',
+        'graphics': 'Графика',
+        'release': 'Релиз'
+      };
+      return names[fullName] || fullName;
+    }
+
+    function removeAnswer(questionName) {
+      delete userAnswers[questionName];
+      delete selectedAnswers[questionName];
+      updateSelectionSidebar();
+      showQuestion(currentQuestionIndex);
+    }
+
+    // ====== RESULTS AND MATCHING ALGORITHM ======
+    function showResults() {
+      questionCard.style.display = 'none';
+      controls.style.display = 'none';
+      loading.style.display = 'block';
+      
+      // Имитация загрузки для лучшего UX
+      setTimeout(() => {
+        loading.style.display = 'none';
+        resultsContainer.style.display = 'block';
+        
+        const recommendedGames = findRecommendedGames();
+        displayRecommendedGames(recommendedGames);
+        
+        // Обновляем подзаголовок с количеством найденных игр
+        resultsSubtitle.textContent = `Мы подобрали ${recommendedGames.length} игр, идеально подходящих под ваши предпочтения`;
+      }, 1500);
+    }
+
+    function findRecommendedGames() {
+      const gameScores = [];
+      
+      gamesCatalog.forEach(game => {
+        let score = 0;
+        let matchCount = 0;
+        let totalPossible = 0;
+        
+        // Настроение (вес: 3)
+        if (userAnswers.mood) {
+          totalPossible += 3;
+          if (game.mood.includes(userAnswers.mood)) {
+            score += 3;
+            matchCount++;
+          }
+        }
+        
+        // Жанры (вес: 2 за каждый совпавший жанр)
+        if (userAnswers.genre && userAnswers.genre.length > 0) {
+          totalPossible += userAnswers.genre.length * 2;
+          const matchingGenres = userAnswers.genre.filter(genre => 
+            game.genre.includes(genre)
+          );
+          score += matchingGenres.length * 2;
+          if (matchingGenres.length > 0) matchCount++;
+        }
+        
+        // Время игры (вес: 2)
+        if (userAnswers.playtime) {
+          totalPossible += 2;
+          if (game.playtime === userAnswers.playtime) {
+            score += 2;
+            matchCount++;
+          }
+        }
+        
+        // Компания (вес: 2)
+        if (userAnswers.company) {
+          totalPossible += 2;
+          if (game.company === userAnswers.company || 
+              (userAnswers.company === 'Не важно' && game.company !== '')) {
+            score += 2;
+            matchCount++;
+          }
+        }
+        
+        // Приоритет (вес: 2)
+        if (userAnswers.priority) {
+          totalPossible += 2;
+          if (game.priority === userAnswers.priority) {
+            score += 2;
+            matchCount++;
+          }
+        }
+        
+        // Платформы (вес: 1 за каждую совпавшую платформу)
+        if (userAnswers.platform && userAnswers.platform.length > 0) {
+          totalPossible += userAnswers.platform.length;
+          const matchingPlatforms = userAnswers.platform.filter(platform => 
+            game.platform.includes(platform)
+          );
+          score += matchingPlatforms.length;
+          if (matchingPlatforms.length > 0) matchCount++;
+        }
+        
+        // Сложность (вес: 1)
+        if (userAnswers.difficulty) {
+          totalPossible += 1;
+          if (game.difficulty === userAnswers.difficulty) {
+            score += 1;
+            matchCount++;
+          }
+        }
+        
+        // Открытый мир (вес: 1)
+        if (userAnswers.openWorld) {
+          totalPossible += 1;
+          if (game.openWorld === userAnswers.openWorld) {
+            score += 1;
+            matchCount++;
+          }
+        }
+        
+        // Графика (вес: 1)
+        if (userAnswers.graphics) {
+          totalPossible += 1;
+          if (game.graphics === userAnswers.graphics) {
+            score += 1;
+            matchCount++;
+          }
+        }
+        
+        // Релиз (вес: 1)
+        if (userAnswers.release) {
+          totalPossible += 1;
+          if (game.release === userAnswers.release) {
+            score += 1;
+            matchCount++;
+          }
+        }
+        
+        // Рассчитываем процент совпадения
+        const matchPercentage = totalPossible > 0 ? Math.round((score / totalPossible) * 100) : 0;
+        
+        gameScores.push({ 
+          game, 
+          score,
+          matchCount,
+          matchPercentage
+        });
+      });
+      
+      // Сортируем по проценту совпадения и количеству совпадений
+      gameScores.sort((a, b) => {
+        if (b.matchPercentage !== a.matchPercentage) {
+          return b.matchPercentage - a.matchPercentage;
+        }
+        return b.matchCount - a.matchCount;
+      });
+      
+      // Возвращаем топ-3 игры с совпадением > 40%
+      const topGames = gameScores.filter(item => item.matchPercentage > 40);
+      return topGames.slice(0, 3).map(item => ({
+        ...item.game,
+        matchPercentage: item.matchPercentage
+      }));
+    }
+
+    function displayRecommendedGames(games) {
+      gamesGrid.innerHTML = '';
+      
+      if (games.length === 0) {
+        gamesGrid.innerHTML = `
+          <div style="text-align: center; padding: 40px; grid-column: 1/-1;">
+            <h3 style="color: var(--accent-2); margin-bottom: 20px;">Игры не найдены</h3>
+            <p style="color: var(--muted); max-width: 600px; margin: 0 auto;">
+              К сожалению, по вашим критериям не найдено подходящих игр. 
+              Попробуйте изменить некоторые ответы или быть менее строгим в выборе.
+            </p>
+          </div>
+        `;
+        return;
+      }
+      
+      games.forEach(game => {
+        const gameCard = document.createElement('div');
+        gameCard.className = 'game-card';
+        
+        // Создаем строку с тегами
+        const tagsHTML = game.genre.map(genre => 
+          `<span class="game-tag">${genre}</span>`
+        ).join('');
+        
+        // Создаем кнопку ссылки, если ссылка указана
+        const linkButton = game.link ? 
+          `<a href="${game.link}" target="_blank" class="game-link-btn">Перейти на сайт игры</a>` : 
+          '';
+        
+        gameCard.innerHTML = `
+          <div class="game-image">
+            <img src="${game.imageUrl}" alt="${game.name}" loading="lazy">
+          </div>
+          <div class="game-content">
+            <h3 class="game-title">${game.name}</h3>
+            <div class="game-tags">
+              ${tagsHTML}
+              <span class="game-match-score">Совпадение: ${game.matchPercentage}%</span>
+            </div>
+            <p class="game-description">${game.description}</p>
+            <div class="game-reason">
+              <strong>Почему именно эта игра?</strong><br>
+              ${game.reason}
+            </div>
+            ${linkButton}
+          </div>
+        `;
+        
+        gamesGrid.appendChild(gameCard);
+      });
+    }
+
+    function restartQuiz() {
+      resultsContainer.style.display = 'none';
+      questionCard.style.display = 'block';
+      controls.style.display = 'none';
+      
+      // Сбрасываем все состояния
+      currentQuestionIndex = 0;
+      userAnswers = {};
+      selectedAnswers = {};
+      progressFill.style.width = '0%';
+      progressText.textContent = 'Вопрос 0 из 10';
+      
+      // Показываем welcome screen
+      questionCard.innerHTML = `
+        <div class="welcome-screen">
+          <h2 class="welcome-title">Добро пожаловать в GameMatch!</h2>
+          <p class="welcome-text">
+            Ответьте на 10 простых вопросов о ваших игровых предпочтениях, 
+            и наш умный алгоритм подберёт игры, которые идеально вам подойдут.
+            Наш каталог содержит более 30 популярных игр разных жанров.
+          </p>
+          <button class="start-btn" id="startBtn">Начать тест</button>
+        </div>
+      `;
+      
+      // Добавляем обработчик на новую кнопку
+      document.getElementById('startBtn').addEventListener('click', startQuiz);
+      
+      // Обновляем sidebar
+      updateSelectionSidebar();
+    }
+  </script>
+</body>
+</html>
